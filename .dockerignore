@@ -1,0 +1,33 @@
+.git
+.gitignore
+.github
+
+# Rebuilt inside the image
+vendor
+node_modules
+
+# Never bake secrets or local machine state into an image
+.env
+.env.backup
+.env.production
+auth.json
+
+# Runtime data: uploads live on the mounted disk, not in the image
+storage/app/public
+storage/logs
+storage/framework/cache
+storage/framework/sessions
+storage/framework/views
+bootstrap/cache
+public/storage
+
+# Local tooling
+composer
+composer.phar
+composer-setup.php
+.phpunit.cache
+.phpunit.result.cache
+.idea
+.vscode
+.fleet
+tests

@@ -10,5 +10,20 @@
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore
 
+# Keep the vendored dashboard assets out of GitHub's language stats.
 public/assets/css/soft-ui-dashboard.css linguist-vendored
 public/assets/js/soft-ui-dashboard.js linguist-vendored
+
+# These run inside a Linux container. CRLF would break the shebang line and
+# the container would exit with "no such file or directory".
+*.sh text eol=lf
+docker/entrypoint.sh text eol=lf
+Dockerfile text eol=lf
+artisan text eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
