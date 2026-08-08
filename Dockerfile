@@ -46,6 +46,10 @@ RUN a2enmod rewrite \
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+# Image builds run as root. Without this composer disables plugins "for safety"
+# and warns on every invocation; package discovery depends on them.
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
 WORKDIR /var/www/html
 
 # Install dependencies first so the layer caches when only app code changes.
@@ -60,10 +64,24 @@ RUN composer install \
 
 COPY . .
 
-RUN composer dump-autoload --optimize --no-dev --no-interaction \
-    && mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache \
+# Create the writable runtime directories BEFORE composer runs.
+# dump-autoload fires post-autoload-dump -> `artisan package:discover`, which
+# aborts with "bootstrap/cache must be present and writable" if it is missing —
+# and it is missing here, because .dockerignore deliberately keeps the local
+# copies of these directories out of the build context.
+#
+# Listed one per path on purpose: RUN uses /bin/sh, which is dash on Debian and
+# does not do brace expansion. "storage/framework/{cache,sessions,views}" would
+# create a single directory with that literal name.
+RUN mkdir -p \
+        storage/framework/cache \
+        storage/framework/sessions \
+        storage/framework/views \
+        storage/logs \
+        bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+    && chmod -R 775 storage bootstrap/cache \
+    && composer dump-autoload --optimize --no-dev --no-interaction
 
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint
 RUN chmod +x /usr/local/bin/entrypoint
