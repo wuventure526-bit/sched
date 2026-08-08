@@ -40,8 +40,9 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 # "More than one MPM loaded". mod_php only works under prefork, so pin that and
 # turn the others off explicitly. a2dismod fails when a module is not enabled,
 # hence the `|| true`.
-RUN (a2dismod mpm_event mpm_worker || true) \
+RUN rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.* \
     && a2enmod mpm_prefork rewrite \
+    && echo "MPMs enabled after fixup:" && ls /etc/apache2/mods-enabled/ | grep mpm \
     && sed -ri 's!DocumentRoot /var/www/html!DocumentRoot /var/www/html/public!g' \
         /etc/apache2/sites-available/000-default.conf \
     && printf 'ServerName localhost\n\

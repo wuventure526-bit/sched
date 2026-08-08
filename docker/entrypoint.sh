@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Apache aborts with "More than one MPM loaded" if more than one is enabled, and
+# mod_php only runs under prefork. The image build already pins this, but repeat
+# it here so the container self-heals even when an older or cached image boots --
+# a crash loop is a bad way to discover a stale layer.
+rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.* 2>/dev/null || true
+if [ ! -e /etc/apache2/mods-enabled/mpm_prefork.load ]; then
+    a2enmod mpm_prefork >/dev/null 2>&1 || true
+fi
+echo "entrypoint: MPM enabled -> $(ls /etc/apache2/mods-enabled/ | grep mpm | tr '\n' ' ')"
+
 # Railway assigns the port at runtime and expects the container to listen on it.
 # Apache's port is baked into config files, so rewrite them before starting.
 PORT="${PORT:-8080}"
