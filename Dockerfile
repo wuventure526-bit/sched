@@ -86,6 +86,7 @@ COPY . .
 # does not do brace expansion. "storage/framework/{cache,sessions,views}" would
 # create a single directory with that literal name.
 RUN mkdir -p \
+        storage/app/public \
         storage/framework/cache \
         storage/framework/sessions \
         storage/framework/views \

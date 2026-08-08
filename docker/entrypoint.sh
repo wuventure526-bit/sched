@@ -27,7 +27,19 @@ if [ -z "${APP_KEY:-}" ]; then
 fi
 
 # Uploaded item photos live on the storage disk and are served from public/.
+# The target must exist before the symlink is made: pointing public/storage at a
+# missing directory leaves a dangling link, and Apache answers 403 -- not 404 --
+# for every file under /storage, which is a confusing way to find that out.
+# When a volume is mounted here it starts empty, so this runs on every boot.
+mkdir -p storage/app/public
+chown -R www-data:www-data storage/app || true
 php artisan storage:link --force || true
+
+if [ -e public/storage/. ]; then
+    echo "entrypoint: storage link OK ($(find storage/app/public -type f 2>/dev/null | wc -l) file(s) published)"
+else
+    echo "entrypoint: WARNING public/storage does not resolve -- uploads will 403"
+fi
 
 # Cache config/routes/views at boot, not at build time: the environment
 # variables they bake in only exist now.
