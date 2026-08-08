@@ -32,6 +32,17 @@ fi
 # for every file under /storage, which is a confusing way to find that out.
 # When a volume is mounted here it starts empty, so this runs on every boot.
 mkdir -p storage/app/public
+
+# Publish the shipped item and avatar photos into the storage disk. A mounted
+# volume comes up empty on its first boot, so without this every item renders a
+# broken image until someone re-uploads 122 files by hand.
+#
+# -n means no-clobber: a file uploaded through the app always wins over the
+# seeded copy, so this can run on every boot without ever undoing real work.
+if [ -d storage/seed ]; then
+    cp -rn storage/seed/. storage/app/public/ 2>/dev/null || true
+fi
+
 chown -R www-data:www-data storage/app || true
 php artisan storage:link --force || true
 
