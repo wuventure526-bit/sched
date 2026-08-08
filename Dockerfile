@@ -34,15 +34,26 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
         opcache
 
 # Laravel serves from public/, and needs mod_rewrite for its front controller.
-RUN a2enmod rewrite \
+#
+# The MPM juggling is not cosmetic: apt above can pull in a second MPM
+# alongside the one this image ships, and Apache then refuses to start with
+# "More than one MPM loaded". mod_php only works under prefork, so pin that and
+# turn the others off explicitly. a2dismod fails when a module is not enabled,
+# hence the `|| true`.
+RUN (a2dismod mpm_event mpm_worker || true) \
+    && a2enmod mpm_prefork rewrite \
     && sed -ri 's!DocumentRoot /var/www/html!DocumentRoot /var/www/html/public!g' \
         /etc/apache2/sites-available/000-default.conf \
-    && printf '<Directory /var/www/html/public>\n\
+    && printf 'ServerName localhost\n\
+ServerTokens Prod\n\
+ServerSignature Off\n\
+<Directory /var/www/html/public>\n\
     Options -Indexes +FollowSymLinks\n\
     AllowOverride All\n\
     Require all granted\n\
 </Directory>\n' > /etc/apache2/conf-available/laravel.conf \
-    && a2enconf laravel
+    && a2enconf laravel \
+    && apache2ctl configtest
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 

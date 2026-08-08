@@ -49,7 +49,6 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/plan', [\App\Http\Controllers\PlanSsoController::class, 'redirectToPlan'])->name('plan.launch');
 
-    Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard.index');
     //
     // DASHBOARD
     //
@@ -177,9 +176,11 @@ Route::middleware(['auth', 'unitadmin'])->group(function () {
 // =========================
 Route::middleware(['auth', 'borrower'])->group(function () {
 
-    // Booking create/store
+    // Booking create. The matching store route lives in the shared
+    // unitadminorborrower group below; it previously existed here too under the
+    // same name, which left two different URIs claiming "bookings.store" and
+    // made route caching (and therefore production) impossible.
     Route::get('/bookings/{item}', [BookingController::class, 'create'])->name('bookings.create');
-    Route::post('/bookings/create', [BookingController::class, 'store'])->name('bookings.store');
 
     // Cancel booking
     Route::get('/bookings/{booking}/cancel', [ApprovalController::class, 'cancel'])->name('bookings.cancel');

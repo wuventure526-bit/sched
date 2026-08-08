@@ -21,9 +21,16 @@ php artisan storage:link --force || true
 
 # Cache config/routes/views at boot, not at build time: the environment
 # variables they bake in only exist now.
-php artisan config:cache || true
-php artisan route:cache || true
-php artisan view:cache || true
+#
+# A failure here is not fatal -- the app runs fine uncached -- but it must be
+# obvious in the logs rather than scrolling past, because route:cache is the
+# step that catches things like two routes sharing a name.
+php artisan config:cache || echo "entrypoint: WARNING config:cache failed, continuing uncached"
+php artisan route:cache  || echo "entrypoint: WARNING route:cache failed, continuing uncached"
+php artisan view:cache   || echo "entrypoint: WARNING view:cache failed, continuing uncached"
+
+# Fail loudly here rather than letting apache2-foreground die in a restart loop.
+apache2ctl configtest
 
 # Opt-in schema migration. Left off by default so a redeploy can never alter
 # the database unless it was asked to.
