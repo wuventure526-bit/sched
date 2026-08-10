@@ -17,7 +17,7 @@
         $railRole = 'Administrator';
         $railLinks = array_merge($railLinks, [
             ['label' => 'Categories',  'icon' => 'fa-layer-group',   'url' => url('categories'), 'match' => ['categories', 'categories/*']],
-            ['label' => 'Unit Admins', 'icon' => 'fa-user-shield',   'url' => url('unitadmins'), 'match' => ['unitadmins', 'unitadmins/*']],
+            ['label' => 'Users',       'icon' => 'fa-users-gear',    'url' => route('users.index'), 'match' => ['users', 'users/*', 'unitadmins', 'unitadmins/*']],
             ['label' => 'Units',       'icon' => 'fa-sitemap',       'url' => url('units'),      'match' => ['units', 'units/*']],
             ['label' => 'Bookings',    'icon' => 'fa-calendar-days',   'url' => url('bookings'),      'match' => ['bookings', 'bookings/*']],
             ['label' => 'Plan Board',  'icon' => 'fa-diagram-project', 'url' => route('plan.launch'), 'match' => ['plan', 'plan/*']],

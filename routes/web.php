@@ -11,6 +11,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\UsageController;
 use App\Http\Controllers\UnitAdminController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\ReturnController;
@@ -120,6 +121,18 @@ Route::middleware(['auth'])->group(function () {
 // ADMINISTRATOR ACCESS
 // =========================
 Route::middleware(['auth', 'administrator'])->group(function () {
+
+    // User management (administrators, unit admins and borrowers alike).
+    // Deactivation is a soft delete, so the routes that have to reach a
+    // deactivated account bind with withTrashed().
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    Route::get('/users/{user}/show', [UserController::class, 'show'])->withTrashed()->name('users.show');
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->withTrashed()->name('users.edit');
+    Route::put('/users/{user}', [UserController::class, 'update'])->withTrashed()->name('users.update');
+    Route::patch('/users/{user}/deactivate', [UserController::class, 'deactivate'])->name('users.deactivate');
+    Route::patch('/users/{user}/reactivate', [UserController::class, 'reactivate'])->withTrashed()->name('users.reactivate');
 
     // Unit Admin management
     Route::get('/unitadmins', [UnitAdminController::class, 'index'])->name('unitadmins.index');
