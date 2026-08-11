@@ -18,7 +18,8 @@
   $canEdit = $isOwner && !in_array($doc->status, ['noted','approved'], true);
   $editLockReason = "Editable only while NOT NOTED / NOT APPROVED";
 
-  // ? Reject modal availability
+  // ? Approve / Reject availability (noting is optional for the administrator)
+  $canAdminApprove = ($role === 'administrator' && in_array($doc->status, ['submitted','noted'], true));
   $canAdminReject = ($role === 'administrator' && in_array($doc->status, ['submitted','noted'], true));
 
   // Has items
@@ -122,8 +123,8 @@
         </form>
       @endif
 
-      {{-- ADMINISTRATOR: APPROVE (only when noted) --}}
-      @if($doc->status === 'noted' && $role === 'administrator')
+      {{-- ADMINISTRATOR: APPROVE (submitted OR noted) --}}
+      @if($canAdminApprove)
         <form method="POST" action="{{ route('requests.approve', $doc->id) }}">
           @csrf
           <button class="btn btn-sm btn-success" type="submit">Approve</button>

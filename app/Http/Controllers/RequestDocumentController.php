@@ -724,8 +724,8 @@ private function updateRevolvingFund(Request $request, RequestDocument $doc)
     {
         $this->authorizeRole('administrator');
 
-        if ($requestDocument->status !== 'noted') {
-            return back()->withErrors(['status' => 'Only NOTED requests can be approved.']);
+        if (!in_array($requestDocument->status, ['submitted', 'noted'], true)) {
+            return back()->withErrors(['status' => 'Only SUBMITTED or NOTED requests can be approved.']);
         }
 
         $requestDocument->update([
