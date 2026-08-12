@@ -22,9 +22,10 @@ class Usage extends Model
         return $this->belongsTo(Booking::class);
     }
 
+    // withTrashed: deactivating a borrower must not blank out their usage history
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     protected static function newFactory()

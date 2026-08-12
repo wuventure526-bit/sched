@@ -43,9 +43,10 @@ class RequestDocument extends Model
     */
 
     // Owner of the request
+    // withTrashed: deactivating an account must not blank out its request history
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     // Liquidation details (only for liquidation type)
@@ -89,12 +90,12 @@ class RequestDocument extends Model
     }
     public function notedByUser()
 {
-    return $this->belongsTo(\App\Models\User::class, 'noted_by');
+    return $this->belongsTo(\App\Models\User::class, 'noted_by')->withTrashed();
 }
 
 public function approvedByUser()
 {
-    return $this->belongsTo(\App\Models\User::class, 'approved_by');
+    return $this->belongsTo(\App\Models\User::class, 'approved_by')->withTrashed();
 }
 public function businessTripDetail()
 {

@@ -25,9 +25,10 @@ class Booking extends Model
         return $this->belongsTo(Item::class);
     }
 
+    // withTrashed: deactivating a borrower must not blank out their booking history
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function usage()
